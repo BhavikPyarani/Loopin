@@ -51,47 +51,51 @@ export default function LoginPage() {
       return;
     }
 
-    try {
-      await signInWithEmailAndPassword(firebaseAuth, email, password);
-    } catch (firebaseError: unknown) {
-      const firebaseErrorDetails =
-        typeof firebaseError === "object" && firebaseError !== null
-          ? (firebaseError as Record<string, unknown>)
-          : null;
-      const firebaseErrorCode =
-        typeof firebaseErrorDetails?.code === "string"
-          ? firebaseErrorDetails.code
-          : undefined;
-      const firebaseErrorMessage =
-        typeof firebaseErrorDetails?.message === "string"
-          ? firebaseErrorDetails.message
-          : "";
+    if (firebaseAuth) {
+      try {
+        await signInWithEmailAndPassword(firebaseAuth, email, password);
+      } catch (firebaseError: unknown) {
+        const firebaseErrorDetails =
+          typeof firebaseError === "object" && firebaseError !== null
+            ? (firebaseError as Record<string, unknown>)
+            : null;
+        const firebaseErrorCode =
+          typeof firebaseErrorDetails?.code === "string"
+            ? firebaseErrorDetails.code
+            : undefined;
+        const firebaseErrorMessage =
+          typeof firebaseErrorDetails?.message === "string"
+            ? firebaseErrorDetails.message
+            : "";
 
-      if (
-        firebaseErrorCode === "auth/user-not-found" ||
-        firebaseErrorCode === "user-not-found"
-      ) {
-        try {
-          await createUserWithEmailAndPassword(firebaseAuth, email, password);
-        } catch (createError) {
-          console.error(createError);
-          setError(
-            "Firebase authentication failed. Please try signing in again."
+        if (
+          firebaseErrorCode === "auth/user-not-found" ||
+          firebaseErrorCode === "user-not-found"
+        ) {
+          try {
+            await createUserWithEmailAndPassword(firebaseAuth, email, password);
+          } catch (createError) {
+            console.error(createError);
+            setError(
+              "Firebase authentication failed. Please try signing in again."
+            );
+            setPending(false);
+            return;
+          }
+        } else if (
+          firebaseErrorCode === "auth/configuration-not-found" ||
+          firebaseErrorMessage.includes("CONFIGURATION_NOT_FOUND")
+        ) {
+          // Firebase is optional for auth login; allow app sign-in via credentials.
+          console.warn(
+            "Firebase is not configured. Continuing without Firebase auth."
           );
+        } else {
+          console.error(firebaseError);
+          setError("Firebase authentication failed. Please try again.");
           setPending(false);
           return;
         }
-      } else if (
-        firebaseErrorCode === "auth/configuration-not-found" ||
-        firebaseErrorMessage.includes("CONFIGURATION_NOT_FOUND")
-      ) {
-        // Firebase is optional for auth login; allow app sign-in via credentials.
-        console.warn("Firebase is not configured. Continuing without Firebase auth.");
-      } else {
-        console.error(firebaseError);
-        setError("Firebase authentication failed. Please try again.");
-        setPending(false);
-        return;
       }
     }
 

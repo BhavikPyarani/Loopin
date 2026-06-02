@@ -33,15 +33,22 @@ export default function ChatRoom({ userName }: { userName: string }) {
   // Limit initial load to the 50 most recent messages
   const messagesQuery = useMemo(
     () =>
-      query(
-        ref(realtimeDb, "chat/messages"),
-        orderByChild("createdAt"),
-        limitToLast(50)
-      ),
+      realtimeDb
+        ? query(
+            ref(realtimeDb, "chat/messages"),
+            orderByChild("createdAt"),
+            limitToLast(50)
+          )
+        : null,
     []
   );
 
   useEffect(() => {
+    if (!firebaseAuth) {
+      setFirebaseUid(null);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
       if (user) {
         setFirebaseUid(user.uid);
@@ -54,6 +61,8 @@ export default function ChatRoom({ userName }: { userName: string }) {
   }, []);
 
   useEffect(() => {
+    if (!messagesQuery) return;
+
     const unsubscribe = onChildAdded(messagesQuery, (snapshot) => {
       const value = snapshot.val();
       if (!value) return;
@@ -87,6 +96,10 @@ export default function ChatRoom({ userName }: { userName: string }) {
   const handleSend = async () => {
     const text = input.trim();
     if (!text) return;
+    if (!realtimeDb) {
+      setError("Realtime chat is not configured for this environment.");
+      return;
+    }
     if (!firebaseUid) {
       setError("Not authenticated. Please log in.");
       return;

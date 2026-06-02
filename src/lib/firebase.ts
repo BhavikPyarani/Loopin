@@ -12,6 +12,16 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const realtimeDb = getDatabase(app);
-export const auth = getAuth(app);
+const hasFirebaseConfig =
+    Boolean(firebaseConfig.apiKey) &&
+    Boolean(firebaseConfig.authDomain) &&
+    Boolean(firebaseConfig.databaseURL) &&
+    Boolean(firebaseConfig.projectId) &&
+    Boolean(firebaseConfig.appId);
+
+const app = hasFirebaseConfig
+    ? (!getApps().length ? initializeApp(firebaseConfig) : getApp())
+    : null;
+
+export const realtimeDb = app ? getDatabase(app) : null;
+export const auth = app ? getAuth(app) : null;

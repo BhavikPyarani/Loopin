@@ -8,6 +8,10 @@ export async function sendChatMessage(message: string, userName: string, firebas
         throw new Error("You must be logged in to send messages");
     }
 
+    if (!realtimeDb) {
+        throw new Error("Realtime chat is not configured.");
+    }
+
     if (!message.trim()) {
         throw new Error("Message cannot be empty");
     }
