@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Community {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String
+  createdAt   DateTime @default(now())
+  posts       Posts[]
+
+  creatorId Int
+  creator   User @relation(fields: [creatorId], references: [id])
+
+  @@index([creatorId])
+  @@index([slug])
+}
+
+model Posts {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+
+  communityId Int
+  community   Community @relation(fields: [communityId], references: [id])
+  comments    Comment[]
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+
+  @@index([communityId])
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  postId Int
+  post   Posts @relation(fields: [postId], references: [id])
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  posts       Posts[]
+  comments    Comment[]
+  communities Community[]
+}

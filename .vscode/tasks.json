@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "run build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect loader json",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require('fs'); const p='src/components/shared/loader.json'; const s=fs.readFileSync(p,'utf8'); console.log('len',s.length); console.log('tail',s.slice(-500)); console.log('last50',s.slice(-50));"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}
