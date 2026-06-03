@@ -1,6 +1,7 @@
 import Navbar from "@/components/layout/navbar";
 import LeftSidebar from "@/components/layout/left-sidebar";
 import RightSidebar from "@/components/layout/right-sidebar";
+import BackToHome from "@/components/shared/back-to-home";
 
 export default function MainLayout({
   children,
@@ -15,6 +16,7 @@ export default function MainLayout({
         <LeftSidebar />
 
         <section className="min-h-screen flex-1 px-6 py-6">
+          <BackToHome />
           {children}
         </section>
 

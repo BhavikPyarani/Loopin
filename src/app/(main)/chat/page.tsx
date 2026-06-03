@@ -26,5 +26,10 @@ export default function ChatPage() {
 async function ChatContent() {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  return <ChatRoom userName={session.user.name ?? "Anonymous"} />;
+  return (
+    <ChatRoom
+      userName={session.user.name ?? "Anonymous"}
+      userId={session.user.id ?? ""}
+    />
+  );
 }
