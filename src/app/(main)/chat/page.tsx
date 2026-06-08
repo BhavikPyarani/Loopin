@@ -1,4 +1,4 @@
-import ChatRoom from "@/components/chat/chat-room";
+import ChatRoom from "@/components/chat/ChatRoom";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import VoteWidget from "@/components/post/VoteWidget";
+import ShareButton from "@/components/post/ShareButton";
 
 type PostCardProps = {
   id: number;
@@ -8,6 +10,8 @@ type PostCardProps = {
   communitySlug: string;
   author: string;
   commentCount?: number;
+  score: number;
+  userVote: number;
 };
 
 export default function PostCard({
@@ -18,6 +22,8 @@ export default function PostCard({
   communitySlug,
   author,
   commentCount = 0,
+  score,
+  userVote,
 }: PostCardProps) {
   return (
     <article className="border-b border-zinc-800 px-1 py-4 last:border-0 hover:bg-zinc-900/40 transition-colors">
@@ -49,13 +55,8 @@ export default function PostCard({
       </p>
 
       {/* Actions */}
-      <div className="mt-3 flex items-center gap-1 text-xs text-zinc-600">
-        <button className="flex items-center gap-1 rounded px-2 py-1 transition hover:bg-zinc-800 hover:text-zinc-400">
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-          </svg>
-          <span>124</span>
-        </button>
+      <div className="mt-3 flex items-center gap-2 text-xs text-zinc-600">
+        <VoteWidget postId={id} initialScore={score} initialUserVote={userVote} />
 
         <Link
           href={`/post/${id}`}
@@ -67,12 +68,7 @@ export default function PostCard({
           <span>{commentCount} {commentCount === 1 ? "reply" : "replies"}</span>
         </Link>
 
-        <button className="flex items-center gap-1 rounded px-2 py-1 transition hover:bg-zinc-800 hover:text-zinc-400">
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-          </svg>
-          <span>Share</span>
-        </button>
+        <ShareButton postId={id} title={title} />
       </div>
     </article>
   );

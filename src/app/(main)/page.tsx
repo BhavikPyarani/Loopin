@@ -1,6 +1,7 @@
-import PostCard from "@/components/post/post-card";
+import PostCard from "@/components/post/PostCard";
 import { prisma } from "@/lib/prisma";
 import { cacheLife, cacheTag } from "next/cache";
+import { auth } from "@/auth";
 
 async function getPosts(skip: number, pageSize: number) {
   "use cache";
@@ -15,6 +16,7 @@ async function getPosts(skip: number, pageSize: number) {
       community: { select: { name: true, slug: true } },
       author: { select: { name: true } },
       _count: { select: { comments: true } },
+      votes: { select: { value: true, userId: true } },
     },
     orderBy: { createdAt: "desc" },
     skip,
@@ -32,7 +34,12 @@ export default async function HomePage({
   const pageSize = 10;
   const skip = (pageNum - 1) * pageSize;
 
-  const posts = await getPosts(skip, pageSize);
+  const [posts, session] = await Promise.all([
+    getPosts(skip, pageSize),
+    auth(),
+  ]);
+
+  const currentUserId = session?.user?.id ? Number(session.user.id) : null;
 
   return (
     <div>
@@ -45,18 +52,25 @@ export default async function HomePage({
 
       <div>
         {posts.length > 0 ? (
-          posts.map((post) => (
-            <PostCard
-              id={post.id}
-              key={post.id}
-              title={post.title}
-              content={post.content}
-              community={post.community.name}
-              communitySlug={post.community.slug}
-              author={post.author.name}
-              commentCount={post._count.comments}
-            />
-          ))
+          posts.map((post) => {
+            const score = post.votes.reduce((acc, v) => acc + v.value, 0);
+            const userVote = currentUserId ? (post.votes.find((v) => v.userId === currentUserId)?.value ?? 0) : 0;
+
+            return (
+              <PostCard
+                id={post.id}
+                key={post.id}
+                title={post.title}
+                content={post.content}
+                community={post.community.name}
+                communitySlug={post.community.slug}
+                author={post.author.name}
+                commentCount={post._count.comments}
+                score={score}
+                userVote={userVote}
+              />
+            );
+          })
         ) : (
           <div className="rounded-md border border-zinc-800 p-12 text-center">
             <p className="text-sm text-zinc-500">

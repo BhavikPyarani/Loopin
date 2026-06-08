@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import CreatePostForm from "@/components/forms/create-post-form";
+import CreatePostForm from "@/components/forms/CreatePostForm";
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 

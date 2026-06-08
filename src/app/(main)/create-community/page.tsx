@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import CreateCommunityForm from "@/components/forms/create-community-form";
+import CreateCommunityForm from "@/components/forms/CreateCommunityForm";
 import { Suspense } from "react";
 
 export default function CreateCommunityPage() {

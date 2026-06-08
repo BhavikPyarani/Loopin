@@ -20,3 +20,16 @@ export const createCommunitySchema = z.object({
             "Description must be at least 10 characters"
         ),
 });
+
+export const updateCommunitySchema = z.object({
+    slug: z.string(),
+    name: z
+        .string()
+        .min(3, "Name must be at least 3 characters"),
+    description: z
+        .string()
+        .min(
+            10,
+            "Description must be at least 10 characters"
+        ),
+});

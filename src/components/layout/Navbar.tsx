@@ -2,7 +2,7 @@ import { auth, signOut } from "@/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import Loader from "@/components/shared/loader";
+import Loader from "@/components/shared/Loader";
 
 async function NavbarAuth() {
   const session = await auth();

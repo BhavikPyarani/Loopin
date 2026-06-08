@@ -1,7 +1,10 @@
-import PostCard from "@/components/post/post-card";
+import PostCard from "@/components/post/PostCard";
 import { prisma } from "@/lib/prisma";
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
+import { auth } from "@/auth";
+import Link from "next/link";
+import CommunityDeleteButton from "@/components/shared/CommunityDeleteButton";
 
 type CommunityPageProps = {
   params: Promise<{ slug: string }>;
@@ -22,9 +25,10 @@ async function CommunityContent({
 }) {
   const { slug } = await params;
 
-  const [community, communityPosts] = await Promise.all([
+  const [community, communityPosts, session] = await Promise.all([
     getCommunity(slug),
     getCommunityPosts(slug),
+    auth(),
   ]);
 
   if (!community) {
@@ -37,38 +41,61 @@ async function CommunityContent({
     );
   }
 
+  const currentUserId = session?.user?.id ? Number(session.user.id) : null;
+  const isCreator = session?.user?.id && community.creatorId === Number(session.user.id);
+
   return (
     <div>
       <div className="mb-6 border-b border-zinc-800 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-800 text-base font-bold text-white">
-            {community.name.charAt(0).toUpperCase()}
+        <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-800 text-base font-bold text-white">
+              {community.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-white">
+                {community.name}
+              </h1>
+              {community.description && (
+                <p className="text-sm text-zinc-500">{community.description}</p>
+              )}
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-semibold text-white">
-              {community.name}
-            </h1>
-            {community.description && (
-              <p className="text-sm text-zinc-500">{community.description}</p>
-            )}
-          </div>
+
+          {isCreator && (
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/communities/${community.slug}/edit`}
+                className="rounded-md border border-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+              >
+                Edit
+              </Link>
+              <CommunityDeleteButton slug={community.slug} />
+            </div>
+          )}
         </div>
       </div>
 
       <div>
         {communityPosts.length > 0 ? (
-          communityPosts.map((post) => (
-            <PostCard
-              id={post.id}
-              key={post.id}
-              title={post.title}
-              content={post.content}
-              community={post.community.name}
-              communitySlug={post.community.slug}
-              author={post.author.name}
-              commentCount={post._count.comments}
-            />
-          ))
+          communityPosts.map((post) => {
+            const score = post.votes.reduce((acc, v) => acc + v.value, 0);
+            const userVote = currentUserId ? (post.votes.find((v) => v.userId === currentUserId)?.value ?? 0) : 0;
+            return (
+              <PostCard
+                id={post.id}
+                key={post.id}
+                title={post.title}
+                content={post.content}
+                community={post.community.name}
+                communitySlug={post.community.slug}
+                author={post.author.name}
+                commentCount={post._count.comments}
+                score={score}
+                userVote={userVote}
+              />
+            );
+          })
         ) : (
           <div className="rounded-md border border-zinc-800 p-12 text-center">
             <p className="text-sm text-zinc-500">
@@ -112,7 +139,7 @@ async function getCommunity(slug: string) {
   cacheTag(`community-${slug}`, "communities");
   return prisma.community.findUnique({
     where: { slug },
-    select: { name: true, description: true },
+    select: { id: true, slug: true, name: true, description: true, creatorId: true },
   });
 }
 
@@ -129,6 +156,7 @@ async function getCommunityPosts(slug: string) {
       community: { select: { name: true, slug: true } },
       author: { select: { name: true } },
       _count: { select: { comments: true } },
+      votes: { select: { value: true, userId: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 20,

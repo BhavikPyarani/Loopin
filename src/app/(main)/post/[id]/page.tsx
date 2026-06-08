@@ -1,8 +1,13 @@
 import { prisma } from "@/lib/prisma";
-import CommentForm from "@/components/comments/comment-form";
-import CommentCard from "@/components/comments/comment-card";
+import CommentForm from "@/components/comments/CommentForm";
+import CommentCard from "@/components/comments/CommentCard";
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
+import { auth } from "@/auth";
+import Link from "next/link";
+import PostDeleteButton from "@/components/post/PostDeleteButton";
+import VoteWidget from "@/components/post/VoteWidget";
+import ShareButton from "@/components/post/ShareButton";
 
 type PostPageProps = {
   params: Promise<{ id: string }>;
@@ -22,8 +27,11 @@ async function PostContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const postId = Number(id);
 
-  // Load post first (typically faster)
-  const post = await getPost(postId);
+  // Load post and session in parallel
+  const [post, session] = await Promise.all([
+    getPost(postId),
+    auth(),
+  ]);
 
   if (!post) {
     return (
@@ -36,15 +44,34 @@ async function PostContent({ params }: { params: Promise<{ id: string }> }) {
     );
   }
 
+  const isAuthor = session?.user?.id && post.authorId === Number(session.user.id);
+  const currentUserId = session?.user?.id ? Number(session.user.id) : null;
+  const score = post.votes.reduce((acc, v) => acc + v.value, 0);
+  const userVote = currentUserId ? (post.votes.find((v) => v.userId === currentUserId)?.value ?? 0) : 0;
+
   return (
     <>
       <article className="rounded-md border border-zinc-800 bg-zinc-900 p-6">
-        <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
-          <span className="font-medium text-indigo-400">{post.community.name}</span>
-          <span>·</span>
-          <span>
-            posted by <span className="text-zinc-400">{post.author.name}</span>
-          </span>
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
+            <span className="font-medium text-indigo-400">{post.community.name}</span>
+            <span>·</span>
+            <span>
+              posted by <span className="text-zinc-400">{post.author.name}</span>
+            </span>
+          </div>
+
+          {isAuthor && (
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/post/${post.id}/edit`}
+                className="rounded-md border border-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+              >
+                Edit
+              </Link>
+              <PostDeleteButton postId={post.id} />
+            </div>
+          )}
         </div>
 
         <h1 className="mb-5 text-2xl font-bold text-white leading-snug">
@@ -55,6 +82,11 @@ async function PostContent({ params }: { params: Promise<{ id: string }> }) {
           className="rich-content text-sm text-zinc-300"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
+
+        <div className="mt-6 border-t border-zinc-800 pt-4 flex items-center gap-3">
+          <VoteWidget postId={post.id} initialScore={score} initialUserVote={userVote} />
+          <ShareButton postId={post.id} title={post.title} />
+        </div>
       </article>
 
       <Suspense fallback={<CommentsSkeleton />}>
@@ -147,8 +179,10 @@ async function getPost(id: number) {
       id: true,
       title: true,
       content: true,
+      authorId: true,
       community: { select: { name: true } },
       author: { select: { name: true } },
+      votes: { select: { value: true, userId: true } },
     },
   });
 }

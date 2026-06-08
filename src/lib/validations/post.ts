@@ -7,8 +7,16 @@ export const createPostSchema = z.object({
     content: z
         .string()
         .min(10, "Content must be at least 10 characters"),
-    communityId: z.coerce
-        .number()
-        .int()
-        .positive("Please select a community"),
+    communityIds: z.array(z.coerce.number().int().positive())
+        .min(1, "Please select at least one community"),
+});
+
+export const updatePostSchema = z.object({
+    id: z.coerce.number().int().positive(),
+    title: z
+        .string()
+        .min(3, "Title must be at least 3 characters"),
+    content: z
+        .string()
+        .min(10, "Content must be at least 10 characters"),
 });

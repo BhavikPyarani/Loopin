@@ -1,4 +1,11 @@
-export default function RightSidebar() {
+import { prisma } from "@/lib/prisma";
+
+export default async function RightSidebar() {
+  const [communityCount, postCount] = await Promise.all([
+    prisma.community.count(),
+    prisma.posts.count(),
+  ]);
+
   const trending = [
     { tag: "#nextjs", posts: "2.4k" },
     { tag: "#react", posts: "1.8k" },
@@ -36,13 +43,13 @@ export default function RightSidebar() {
           <p className="text-sm leading-relaxed text-zinc-500">
             A community platform for developers to discuss, share, and connect.
           </p>
-          <div className="mt-3 flex gap-4 border-t border-zinc-800 pt-3">
+          <div className="mt-3 flex gap-6 border-t border-zinc-800 pt-3">
             <div>
-              <p className="text-sm font-semibold text-white">24+</p>
+              <p className="text-sm font-semibold text-white">{communityCount}</p>
               <p className="text-xs text-zinc-500">Communities</p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">1.2k+</p>
+              <p className="text-sm font-semibold text-white">{postCount}</p>
               <p className="text-xs text-zinc-500">Posts</p>
             </div>
           </div>

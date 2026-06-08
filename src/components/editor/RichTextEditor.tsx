@@ -59,17 +59,20 @@ type RichTextEditorProps = {
   name: string;
   placeholder?: string;
   disabled?: boolean;
+  defaultValue?: string;
 };
 
 export default function RichTextEditor({
   name,
   placeholder = "Write your content...",
   disabled = false,
+  defaultValue = "",
 }: RichTextEditorProps) {
   const hiddenRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
+    content: defaultValue,
     extensions: [
       StarterKit.configure({ codeBlock: false }),
       Underline,
@@ -250,7 +253,7 @@ export default function RichTextEditor({
       <EditorContent editor={editor} />
 
       {/* Hidden input carries the HTML into FormData on submit */}
-      <input ref={hiddenRef} type="hidden" name={name} />
+      <input ref={hiddenRef} type="hidden" name={name} defaultValue={defaultValue} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
-import Navbar from "@/components/layout/navbar";
-import LeftSidebar from "@/components/layout/left-sidebar";
-import RightSidebar from "@/components/layout/right-sidebar";
-import BackToHome from "@/components/shared/back-to-home";
+import Navbar from "@/components/layout/Navbar";
+import LeftSidebar from "@/components/layout/LeftSidebar";
+import RightSidebar from "@/components/layout/RightSidebar";
+import BackToHome from "@/components/shared/BackToHome";
 
 export default function MainLayout({
   children,
