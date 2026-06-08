@@ -3,69 +3,100 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import Loader from "@/components/shared/Loader";
+import { prisma } from "@/lib/prisma";
+import MobileMenu from "@/components/layout/MobileMenu";
 
 async function NavbarAuth() {
-  const session = await auth();
+  const [session, communities] = await Promise.all([
+    auth(),
+    prisma.community.findMany({
+      select: { name: true, slug: true },
+      take: 20,
+      orderBy: { createdAt: "desc" },
+    }).catch((err) => {
+      console.error("Failed to load communities for navbar:", err);
+      return [];
+    }),
+  ]);
+
+  const handleSignOut = async () => {
+    "use server";
+    await signOut({ redirectTo: "/login" });
+  };
 
   if (!session?.user) {
     return (
-      <>
-        <Link
-          href="/register"
-          className="px-3 py-1.5 text-sm text-zinc-400 transition hover:text-white"
-        >
-          Register
-        </Link>
-        <Link
-          href="/login"
-          className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500"
-        >
-          Sign In
-        </Link>
-      </>
+      <div className="flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2">
+          <Link
+            href="/register"
+            className="px-3 py-1.5 text-sm text-zinc-400 transition hover:text-white"
+          >
+            Register
+          </Link>
+          <Link
+            href="/login"
+            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500"
+          >
+            Sign In
+          </Link>
+        </div>
+
+        {/* Mobile Menu for Guest */}
+        <MobileMenu
+          communities={communities}
+          sessionUser={null}
+          signOutAction={handleSignOut}
+        />
+      </div>
     );
   }
 
   return (
-    <>
-      <Link
-        href="/chat"
-        className="hidden items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-zinc-800 sm:flex"
-      >
-        Chat
-      </Link>
+    <div className="flex items-center gap-3">
+      {/* Desktop Navigation */}
+      <div className="hidden lg:flex items-center gap-3">
+        <Link
+          href="/chat"
+          className="flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-zinc-800"
+        >
+          Chat
+        </Link>
 
-      <Link
-        href="/create-post"
-        className="hidden items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 sm:flex"
-      >
-        <span className="text-base leading-none">+</span>
-        Post
-      </Link>
+        <Link
+          href="/create-post"
+          className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500"
+        >
+          <span className="text-base leading-none">+</span>
+          Post
+        </Link>
 
-      <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-700 text-xs font-semibold text-white">
-          {session.user.name?.charAt(0).toUpperCase() ?? "?"}
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-700 text-xs font-semibold text-white">
+            {session.user.name?.charAt(0).toUpperCase() ?? "?"}
+          </div>
+          <span className="text-sm text-zinc-300">
+            {session.user.name}
+          </span>
         </div>
-        <span className="hidden text-sm text-zinc-300 sm:block">
-          {session.user.name}
-        </span>
+
+        <form action={handleSignOut}>
+          <button
+            type="submit"
+            className="rounded-md border border-zinc-800 px-3 py-1.5 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white cursor-pointer"
+          >
+            Sign Out
+          </button>
+        </form>
       </div>
 
-      <form
-        action={async () => {
-          "use server";
-          await signOut({ redirectTo: "/login" });
-        }}
-      >
-        <button
-          type="submit"
-          className="rounded-md border border-zinc-800 px-3 py-1.5 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white cursor-pointer"
-        >
-          Sign Out
-        </button>
-      </form>
-    </>
+      {/* Mobile Menu for Authenticated User */}
+      <MobileMenu
+        communities={communities}
+        sessionUser={session.user}
+        signOutAction={handleSignOut}
+      />
+    </div>
   );
 }
 
@@ -90,8 +121,8 @@ export default function Navbar() {
         {/* Actions — auth section streams in behind Suspense */}
         <div className="flex shrink-0 items-center gap-2">
           <Suspense fallback={<Loader size={32} />}>
-          <NavbarAuth />
-        </Suspense>
+            <NavbarAuth />
+          </Suspense>
         </div>
       </div>
     </header>

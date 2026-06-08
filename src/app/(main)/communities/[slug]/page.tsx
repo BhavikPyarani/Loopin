@@ -56,9 +56,15 @@ async function CommunityContent({
               <h1 className="text-lg font-semibold text-white">
                 {community.name}
               </h1>
-              {community.description && (
-                <p className="text-sm text-zinc-500">{community.description}</p>
-              )}
+              <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500 mt-1">
+                <span>Created {new Date(community.createdAt).toLocaleDateString()}</span>
+                {community.description && (
+                  <>
+                    <span>·</span>
+                    <span>{community.description}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -93,6 +99,7 @@ async function CommunityContent({
                 commentCount={post._count.comments}
                 score={score}
                 userVote={userVote}
+                createdAt={post.createdAt}
               />
             );
           })
@@ -139,7 +146,7 @@ async function getCommunity(slug: string) {
   cacheTag(`community-${slug}`, "communities");
   return prisma.community.findUnique({
     where: { slug },
-    select: { id: true, slug: true, name: true, description: true, creatorId: true },
+    select: { id: true, slug: true, name: true, description: true, creatorId: true, createdAt: true },
   });
 }
 
@@ -153,6 +160,7 @@ async function getCommunityPosts(slug: string) {
       id: true,
       title: true,
       content: true,
+      createdAt: true,
       community: { select: { name: true, slug: true } },
       author: { select: { name: true } },
       _count: { select: { comments: true } },

@@ -6,7 +6,7 @@ import Underline from "@tiptap/extension-underline";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Placeholder from "@tiptap/extension-placeholder";
 import { createLowlight, common } from "lowlight";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const lowlight = createLowlight(common);
 
@@ -69,6 +69,7 @@ export default function RichTextEditor({
   defaultValue = "",
 }: RichTextEditorProps) {
   const hiddenRef = useRef<HTMLInputElement>(null);
+  const [, setTick] = useState(0);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -91,6 +92,13 @@ export default function RichTextEditor({
         const html = editor.getHTML();
         hiddenRef.current.value = html === "<p></p>" ? "" : html;
       }
+      setTick((t) => t + 1);
+    },
+    onSelectionUpdate() {
+      setTick((t) => t + 1);
+    },
+    onTransaction() {
+      setTick((t) => t + 1);
     },
   });
 
@@ -109,35 +117,35 @@ export default function RichTextEditor({
         {/* Text style */}
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleBold().run()}
-          active={editor?.isActive("bold")}
+          // active={editor?.isActive("bold")}
           title="Bold"
         >
           <strong>B</strong>
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleItalic().run()}
-          active={editor?.isActive("italic")}
+          // active={editor?.isActive("italic")}
           title="Italic"
         >
           <em>I</em>
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleUnderline().run()}
-          active={editor?.isActive("underline")}
+          // active={editor?.isActive("underline")}
           title="Underline"
         >
           <span className="underline">U</span>
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleStrike().run()}
-          active={editor?.isActive("strike")}
+          // active={editor?.isActive("strike")}
           title="Strikethrough"
         >
           <span className="line-through">S</span>
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleCode().run()}
-          active={editor?.isActive("code")}
+          // active={editor?.isActive("code")}
           title="Inline code"
         >
           {"<>"}
@@ -150,7 +158,7 @@ export default function RichTextEditor({
           onClick={() =>
             editor?.chain().focus().toggleHeading({ level: 1 }).run()
           }
-          active={editor?.isActive("heading", { level: 1 })}
+          // active={editor?.isActive("heading", { level: 1 })}
           title="Heading 1"
         >
           H1
@@ -159,7 +167,7 @@ export default function RichTextEditor({
           onClick={() =>
             editor?.chain().focus().toggleHeading({ level: 2 }).run()
           }
-          active={editor?.isActive("heading", { level: 2 })}
+          // active={editor?.isActive("heading", { level: 2 })}
           title="Heading 2"
         >
           H2
@@ -168,7 +176,7 @@ export default function RichTextEditor({
           onClick={() =>
             editor?.chain().focus().toggleHeading({ level: 3 }).run()
           }
-          active={editor?.isActive("heading", { level: 3 })}
+          // active={editor?.isActive("heading", { level: 3 })}
           title="Heading 3"
         >
           H3
@@ -179,7 +187,7 @@ export default function RichTextEditor({
         {/* Lists & blocks */}
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleBulletList().run()}
-          active={editor?.isActive("bulletList")}
+          // active={editor?.isActive("bulletList")}
           title="Bullet list"
         >
           <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor">
@@ -193,7 +201,7 @@ export default function RichTextEditor({
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-          active={editor?.isActive("orderedList")}
+          // active={editor?.isActive("orderedList")}  
           title="Ordered list"
         >
           <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor">
@@ -207,7 +215,7 @@ export default function RichTextEditor({
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-          active={editor?.isActive("blockquote")}
+          // active={editor?.isActive("blockquote")}
           title="Blockquote"
         >
           <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor">
@@ -216,7 +224,7 @@ export default function RichTextEditor({
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
-          active={editor?.isActive("codeBlock")}
+          // active={editor?.isActive("codeBlock")}
           title="Code block"
         >
           <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

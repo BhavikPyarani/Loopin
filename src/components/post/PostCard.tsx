@@ -12,6 +12,7 @@ type PostCardProps = {
   commentCount?: number;
   score: number;
   userVote: number;
+  createdAt: Date;
 };
 
 export default function PostCard({
@@ -24,6 +25,7 @@ export default function PostCard({
   commentCount = 0,
   score,
   userVote,
+  createdAt,
 }: PostCardProps) {
   return (
     <article className="border-b border-zinc-800 px-1 py-4 last:border-0 hover:bg-zinc-900/40 transition-colors">
@@ -40,6 +42,8 @@ export default function PostCard({
           posted by{" "}
           <span className="text-zinc-400">{author}</span>
         </span>
+        <span>·</span>
+        <span>{new Date(createdAt).toLocaleDateString()}</span>
       </div>
 
       {/* Title */}

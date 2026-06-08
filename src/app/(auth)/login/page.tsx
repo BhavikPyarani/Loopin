@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { loginSchema } from "@/lib/validations/auth";
 import { auth as firebaseAuth } from "@/lib/firebase";
+import Image from "next/image";
 
 const inputClass =
   "w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-indigo-500";
@@ -84,11 +85,13 @@ export default function LoginPage() {
           }
         } else if (
           firebaseErrorCode === "auth/configuration-not-found" ||
-          firebaseErrorMessage.includes("CONFIGURATION_NOT_FOUND")
+          firebaseErrorMessage.includes("CONFIGURATION_NOT_FOUND") ||
+          firebaseErrorCode === "auth/unauthorized-domain" ||
+          firebaseErrorCode === "unauthorized-domain"
         ) {
-          // Firebase is optional for auth login; allow app sign-in via credentials.
+          // Firebase is optional for auth login or domain is unauthorized (e.g. testing on IP url); allow app sign-in via credentials.
           console.warn(
-            "Firebase is not configured. Continuing without Firebase auth."
+            "Firebase is not configured or domain is unauthorized. Continuing without Firebase auth."
           );
         } else {
           console.error(firebaseError);
@@ -106,8 +109,12 @@ export default function LoginPage() {
     <div className="mx-auto w-full max-w-sm">
       {/* Brand */}
       <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="h-9 w-9 rounded-lg bg-indigo-600" />
-        <span className="text-xl font-semibold text-white">Loopin</span>
+        {/* <div className="h-9 w-9 rounded-lg bg-indigo-600" /> */}
+        {/* <span className="text-xl font-semibold text-white">Loopin</span> */}
+         {/* Logo */}
+        <Link href="/" className="flex shrink-0 items-center gap-2">
+          <Image src="/LoopinLogo.png" alt="Loopin Logo" width={200} height={200} />
+        </Link>
       </div>
 
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-7">

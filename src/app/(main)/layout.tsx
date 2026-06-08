@@ -15,7 +15,7 @@ export default function MainLayout({
       <main className="mx-auto flex max-w-7xl">
         <LeftSidebar />
 
-        <section className="min-h-screen flex-1 px-6 py-6">
+        <section className="min-h-screen flex-1 px-4 py-4 md:px-6 md:py-6">
           <BackToHome />
           {children}
         </section>

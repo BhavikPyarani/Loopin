@@ -23,7 +23,7 @@ export default async function RightSidebar() {
             Trending
           </p>
           <div className="space-y-2">
-            {trending.map(({ tag, posts }) => (
+            {trending.map(({ tag }) => (
               <div
                 key={tag}
                 className="flex items-center justify-between cursor-pointer group"
@@ -31,7 +31,6 @@ export default async function RightSidebar() {
                 <span className="text-sm text-zinc-300 group-hover:text-indigo-400 transition-colors">
                   {tag}
                 </span>
-                <span className="text-xs text-zinc-600">{posts} posts</span>
               </div>
             ))}
           </div>

@@ -1,10 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createCommunity } from "@/actions/community";
 
 const inputClass =
   "w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-indigo-500";
+
+const slugify = (text: string) => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "") // remove special chars except spaces/hyphens
+    .replace(/\s+/g, "-") // replace spaces with hyphens
+    .replace(/-+/g, "-"); // merge multiple hyphens
+};
 
 export default function CreateCommunityForm() {
   const initialState = {
@@ -14,6 +23,15 @@ export default function CreateCommunityForm() {
     createCommunity,
     initialState
   );
+
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setName(val);
+    setSlug(slugify(val));
+  };
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -33,8 +51,11 @@ export default function CreateCommunityForm() {
             <input
               type="text"
               name="name"
+              value={name}
+              onChange={handleNameChange}
               placeholder="e.g. Next.js Developers"
               className={inputClass}
+              required
             />
             {state.errors?.name && (
               <p className="text-xs text-red-400">{state.errors.name[0]}</p>
@@ -45,12 +66,15 @@ export default function CreateCommunityForm() {
             <label className="block text-sm font-medium text-zinc-300">
               Slug
             </label>
-            <div className="flex items-center rounded-md border border-zinc-800 bg-zinc-900 focus-within:border-indigo-500">
+            <div className="flex items-center rounded-md border border-zinc-800 bg-zinc-900 focus-within:border-indigo-500 w-full">
               <input
                 type="text"
                 name="slug"
+                value={slug}
+                onChange={(e) => setSlug(slugify(e.target.value))}
                 placeholder="nextjs-developers"
                 className={inputClass}
+                required
               />
             </div>
             {state.errors?.slug && (
@@ -67,6 +91,7 @@ export default function CreateCommunityForm() {
               rows={4}
               placeholder="What is this community about?"
               className={`${inputClass} resize-none`}
+              required
             />
             {state.errors?.description && (
               <p className="text-xs text-red-400">

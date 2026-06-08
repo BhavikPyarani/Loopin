@@ -13,6 +13,7 @@ async function getPosts(skip: number, pageSize: number) {
       id: true,
       title: true,
       content: true,
+      createdAt: true,
       community: { select: { name: true, slug: true } },
       author: { select: { name: true } },
       _count: { select: { comments: true } },
@@ -68,6 +69,7 @@ export default async function HomePage({
                 commentCount={post._count.comments}
                 score={score}
                 userVote={userVote}
+                createdAt={post.createdAt}
               />
             );
           })

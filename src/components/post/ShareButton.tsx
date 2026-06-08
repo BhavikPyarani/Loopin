@@ -8,7 +8,6 @@ type ShareButtonProps = {
 };
 
 export default function ShareButton({ postId, title }: ShareButtonProps) {
-  const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${postId}`;
@@ -21,18 +20,10 @@ export default function ShareButton({ postId, title }: ShareButtonProps) {
         });
         return;
       } catch (err) {
-        // User cancelled or share failed, fallback to copy
         console.log("Web Share failed, copying to clipboard instead:", err);
       }
     }
 
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy link:", err);
-    }
   };
 
   return (
@@ -41,20 +32,6 @@ export default function ShareButton({ postId, title }: ShareButtonProps) {
       className="flex items-center gap-1.5 rounded px-2 py-1 transition hover:bg-zinc-800 hover:text-zinc-300 text-zinc-500 cursor-pointer"
       title="Share this post"
     >
-      {copied ? (
-        <>
-          <svg
-            className="h-3.5 w-3.5 text-green-400 font-bold"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={3}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-          <span className="text-green-400 font-medium">Copied!</span>
-        </>
-      ) : (
         <>
           <svg
             className="h-3.5 w-3.5"
@@ -71,7 +48,6 @@ export default function ShareButton({ postId, title }: ShareButtonProps) {
           </svg>
           <span>Share</span>
         </>
-      )}
     </button>
   );
 }

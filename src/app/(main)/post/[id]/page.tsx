@@ -59,6 +59,8 @@ async function PostContent({ params }: { params: Promise<{ id: string }> }) {
             <span>
               posted by <span className="text-zinc-400">{post.author.name}</span>
             </span>
+            <span>·</span>
+            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
           </div>
 
           {isAuthor && (
@@ -155,6 +157,7 @@ async function CommentsSection({ postId }: { postId: number }) {
               key={comment.id}
               author={comment.author.name}
               content={comment.content}
+              createdAt={comment.createdAt}
             />
           ))}
         </div>
@@ -180,6 +183,7 @@ async function getPost(id: number) {
       title: true,
       content: true,
       authorId: true,
+      createdAt: true,
       community: { select: { name: true } },
       author: { select: { name: true } },
       votes: { select: { value: true, userId: true } },
@@ -196,6 +200,7 @@ async function getPostComments(postId: number) {
     select: {
       id: true,
       content: true,
+      createdAt: true,
       author: { select: { name: true } },
     },
     orderBy: { createdAt: "desc" },

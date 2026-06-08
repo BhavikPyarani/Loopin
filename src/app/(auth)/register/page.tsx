@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { registerUser } from "@/actions/auth";
+import Image from "next/image";
 
 const initialState = {
   errors: {},
@@ -23,8 +24,11 @@ export default function RegisterPage() {
     <div className="mx-auto w-full max-w-sm">
       {/* Brand */}
       <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="h-9 w-9 rounded-lg bg-indigo-600" />
-        <span className="text-xl font-semibold text-white">Loopin</span>
+        {/* <div className="h-9 w-9 rounded-lg bg-indigo-600" />
+        <span className="text-xl font-semibold text-white">Loopin</span> */}
+         <Link href="/" className="flex shrink-0 items-center gap-2">
+          <Image src="/LoopinLogo.png" alt="Loopin Logo" width={200} height={200} />
+        </Link>
       </div>
 
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-7">
